@@ -2,7 +2,7 @@ import argparse
 import json
 from pprint import pprint
 from sphinxarg.parser import parse_parser, parser_navigate
-
+import os
 
 def test_parse_options():
     parser = argparse.ArgumentParser()
@@ -91,20 +91,21 @@ def test_parse_nested():
         {
             'name': 'install',
             'help': 'install help',
-            'usage': 'usage: py.test install [-h] [--upgrade] ref\n',
+            'usage': 'usage: py.test install [-h] [--upgrade] ref' + os.linesep,
+            'options': [
+                {
+                    'default': False,
+                    'name': ['--upgrade'],
+                    'help': 'foo2 help'
+                },
+            ],
             'args': [
                 {
                     'name': 'ref',
                     'help': 'foo1 help'
                 },
             ],
-            'options': [
-                {
-                    'name': ['--upgrade'],
-                    'default': False,
-                    'help': 'foo2 help'
-                },
-            ]
+
         },
     ]
 
