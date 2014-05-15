@@ -7,15 +7,10 @@ from sphinxarg.parser import parse_parser, parser_navigate
 from sphinx.errors import SphinxError
 
 
-class sphinxargError(SphinxError):
-    category = 'sphinxarg error'
-
-
 def map_nested_definitions(nested_content):
 
     if nested_content is None:
         raise Exception('Nested content should be iterable, not null')
-
 
     # build definition dictionary
     definitions = {}
@@ -196,7 +191,6 @@ def print_subcommand_list(data, nested_content):
             )
 
     return nodes.definition_list('', *items)
-
 
 
 class ArgParseDirective(Directive):
