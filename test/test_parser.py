@@ -2,7 +2,7 @@ import argparse
 import json
 from pprint import pprint
 from sphinxarg.parser import parse_parser, parser_navigate
-import os
+
 
 def test_parse_options():
     parser = argparse.ArgumentParser()
@@ -21,6 +21,68 @@ def test_parse_options():
             'default': False,
             'help': ''
         },
+    ]
+
+
+def test_parse_default():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--foo', default='123')
+
+    data = parse_parser(parser)
+
+    assert data['options'] == [
+        {
+            'name': ['--foo'],
+            'default': '123',
+            'help': ''
+        }
+    ]
+
+
+def test_parse_arg_choices():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('move', choices=['rock', 'paper', 'scissors'])
+
+    data = parse_parser(parser)
+
+    assert data['args'] == [
+        {
+            'name': 'move',
+            'help': '',
+            'choices': ['rock', 'paper', 'scissors']
+        }
+    ]
+
+
+def test_parse_opt_choices():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--move', choices=['rock', 'paper', 'scissors'])
+
+    data = parse_parser(parser)
+
+    assert data['options'] == [
+        {
+            'name': ['--move'],
+            'default': None,
+            'help': '',
+            'choices': ['rock', 'paper', 'scissors']
+        }
+    ]
+
+
+
+def test_parse_default_skip_default():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--foo', default='123')
+
+    data = parse_parser(parser, skip_default_values=True)
+
+    assert data['options'] == [
+        {
+            'name': ['--foo'],
+            'default': '==SUPPRESS==',
+            'help': ''
+        }
     ]
 
 
@@ -91,21 +153,20 @@ def test_parse_nested():
         {
             'name': 'install',
             'help': 'install help',
-            'usage': 'usage: py.test install [-h] [--upgrade] ref' + os.linesep,
-            'options': [
-                {
-                    'default': False,
-                    'name': ['--upgrade'],
-                    'help': 'foo2 help'
-                },
-            ],
+            'usage': 'usage: py.test install [-h] [--upgrade] ref',
             'args': [
                 {
                     'name': 'ref',
                     'help': 'foo1 help'
                 },
             ],
-
+            'options': [
+                {
+                    'name': ['--upgrade'],
+                    'default': False,
+                    'help': 'foo2 help'
+                },
+            ]
         },
     ]
 
@@ -144,7 +205,7 @@ def test_parse_nested_traversal():
                 {
                     'name': 'level3',
                     'help': '',
-                    'usage': 'usage: py.test level1 level2 level3 [-h] foo bar\n',
+                    'usage': 'usage: py.test level1 level2 level3 [-h] foo bar',
                     'args': [
                         {
                             'name': 'foo',

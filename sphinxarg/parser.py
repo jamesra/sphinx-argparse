@@ -9,7 +9,6 @@ class NavigationException(Exception):
 
 
 def parser_navigate(parser_result, path, current_path=None):
-
     if isinstance(path, str):
         if path == '':
             return parser_result
@@ -36,7 +35,6 @@ def parser_navigate(parser_result, path, current_path=None):
 
 
 def _try_add_parser_attribute(data, parser, attribname):
-
     attribval = getattr(parser, attribname, None)
     if attribval is None:
         return
@@ -48,10 +46,9 @@ def _try_add_parser_attribute(data, parser, attribname):
         data[attribname] = attribval
 
 
-def parse_parser(parser, data=None):
-
+def parse_parser(parser, data=None, **kwargs):
     if data is None:
-        data = {'name': '', 'usage': parser.format_usage()}
+        data = {'name': '', 'usage': parser.format_usage().strip()}
 
     _try_add_parser_attribute(data, parser, 'description')
     _try_add_parser_attribute(data, parser, 'epilog')
@@ -67,14 +64,14 @@ def parse_parser(parser, data=None):
             for item in action._choices_actions:
                 helps[item.dest] = item.help
 
-            for name, subaction in action._name_parser_map.iteritems():
+            for name, subaction in action._name_parser_map.items():
                 subaction.prog = '%s %s' % (parser.prog, name)
                 subdata = {
                     'name': name,
                     'help': helps[name] if name in helps else '',
-                    'usage': subaction.format_usage()
+                    'usage': subaction.format_usage().strip()
                 }
-                parse_parser(subaction, subdata)
+                parse_parser(subaction, subdata, **kwargs)
 
                 if not 'children' in data:
                     data['children'] = []
@@ -85,12 +82,20 @@ def parse_parser(parser, data=None):
         if not 'args' in data:
             data['args'] = []
 
-        data['args'].append({
+        arg = {
             'name': action.dest,
             'help': action.help or ''
-        })
+        }
+        if action.choices:
+            arg['choices'] = action.choices
+
+        data['args'].append(arg)
+
+    show_defaults = (not 'skip_default_values' in kwargs) or (kwargs['skip_default_values'] == False)
 
     for action in parser._get_optional_actions():
+
+        #
 
         if isinstance(action, _HelpAction):
             continue
@@ -98,10 +103,15 @@ def parse_parser(parser, data=None):
         if not 'options' in data:
             data['options'] = []
 
-        data['options'].append({
+        option = {
             'name': action.option_strings,
-            'default': action.default,
+            'default': action.default if show_defaults else '==SUPPRESS==',
             'help': action.help or ''
-        })
+        }
+
+        if action.choices:
+            option['choices'] = action.choices
+
+        data['options'].append(option)
 
     return data
