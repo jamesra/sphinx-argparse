@@ -213,6 +213,9 @@ class ArgParseDirective(Directive):
             raise ValueError(':module: and :func: should be specified, or :ref:')
 
         mod = __import__(module_name, globals(), locals(), [attr_name])
+        if not hasattr(mod, attr_name):
+             raise ValueError('module %s has no attribute %s' % (module_name, attr_name))
+
         func = getattr(mod, attr_name)
 
         if isinstance(func, ArgumentParser):
