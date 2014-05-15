@@ -4,7 +4,6 @@ from sphinx.util.compat import Directive
 from sphinx.util.compat import make_admonition
 from docutils.parsers.rst.directives import flag, unchanged, nonnegative_int
 from sphinxarg.parser import parse_parser, parser_navigate
-from sphinx.errors import SphinxError
 
 
 def map_nested_definitions(nested_content):
