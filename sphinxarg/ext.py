@@ -4,6 +4,11 @@ from sphinx.util.compat import Directive
 from sphinx.util.compat import make_admonition
 from docutils.parsers.rst.directives import flag, unchanged, nonnegative_int
 from sphinxarg.parser import parse_parser, parser_navigate
+from sphinx.errors import SphinxError
+
+
+class sphinxargError(SphinxError):
+    category = 'sphinxarg error'
 
 
 def map_nested_definitions(nested_content):
@@ -210,11 +215,11 @@ class ArgParseDirective(Directive):
             module_name = '.'.join(_parts[0:-1])
             attr_name = _parts[-1]
         else:
-            raise ValueError(':module: and :func: should be specified, or :ref:')
+            raise self.error(':module: and :func: should be specified, or :ref:')
 
         mod = __import__(module_name, globals(), locals(), [attr_name])
         if not hasattr(mod, attr_name):
-             raise ValueError('module %s has no attribute %s' % (module_name, attr_name))
+            raise self.error('Module "%s" has no attribute "%s"\nIncorrect argparse :module: or :func: values?' % (module_name, attr_name))
 
         func = getattr(mod, attr_name)
 
