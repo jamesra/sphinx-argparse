@@ -132,8 +132,6 @@ def print_subcommand_list(data, nested_content):
                 text=child['help'])] if child['help'] else []
             name = child['name']
             my_def = apply_definition(definitions, my_def, name)
-            if len(my_def) == 0:
-                my_def.append(nodes.paragraph(text='Undocumented'))
             if 'description' in child:
                 my_def.append(nodes.paragraph(text=child['description']))
             my_def.append(nodes.literal_block(text=child['usage']))
@@ -295,8 +293,6 @@ class ArgParseDirective(Directive):
             subcmd_items = []
             if subcmd['help']:
                 subcmd_items.append(nodes.paragraph(text=subcmd['help']))
-            else:
-                subcmd_items.append(nodes.paragraph(text='Undocumented'))
             items.append(
                 nodes.definition_list_item(
                     '',
